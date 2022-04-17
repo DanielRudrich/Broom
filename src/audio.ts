@@ -1,8 +1,6 @@
 import { SweepProcessorNode, MeasurementSettings } from "./sweepProcessorNode";
 import { Sweep, SweepSettings } from "./sweep";
 
-export const SAMPLERATE = 48000;
-
 class AudioEngine {
     context: AudioContext;
 
@@ -17,7 +15,8 @@ class AudioEngine {
     onImpulseResponseReady: (ir: AudioBuffer) => void;
 
     constructor() {
-        this.context = new window.AudioContext({ sampleRate: SAMPLERATE });
+        this.context = new window.AudioContext(); // { sampleRate: SAMPLERATE }
+        console.log(this.context);
         this.modulePromise =
             this.context.audioWorklet.addModule("sweepProcessor.js");
     }
@@ -43,8 +42,6 @@ class AudioEngine {
     }
 
     hasInput(): boolean {
-        console.log("this stream");
-        console.log(this.stream);
         if (this.stream) return true;
 
         return false;
@@ -59,7 +56,10 @@ class AudioEngine {
 
         const constraints = {
             audio: {
-                sampleRate: 48000,
+                sampleRate: { exact: this.context.sampleRate },
+                echoCancellation: false,
+                autoGainControl: false,
+                noiseSuppression: false,
                 deviceId: devideIdentifier
                     ? { exact: devideIdentifier }
                     : undefined,
@@ -91,7 +91,7 @@ class AudioEngine {
         if (!this.initialized) return false;
         if (!this.hasInput()) return false;
 
-        let sweep = new Sweep(SweepSettings, SAMPLERATE);
+        let sweep = new Sweep(SweepSettings, this.context.sampleRate);
         engine.sweepProcessor.setSweep(sweep);
         engine.sweepProcessor.startRecording(measurementSettings);
 

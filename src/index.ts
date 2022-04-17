@@ -14,7 +14,7 @@ import {
     inputLevelMeter,
 } from "./ui";
 
-import { engine, SAMPLERATE } from "./audio";
+import { engine } from "./audio";
 
 engine.onInputLevelUpdate = (level: number) => {
     inputLevelMeter.value = level * 100;
