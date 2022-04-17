@@ -1,7 +1,6 @@
 import Dygraph from "dygraphs";
 import { WAVFormat } from "./wavformat";
 import { downloadWav } from "./utilities";
-import { SweepProcessorNode } from "./sweepProcessorNode";
 import {
     SweepUI,
     MeasurementUI,
@@ -11,20 +10,26 @@ import {
     measurementProgress,
     downloadButton,
     inputDeviceSelector,
-    inputLevelMeter,
+    setInputLevel,
 } from "./ui";
 
 import { engine } from "./audio";
 
 engine.onInputLevelUpdate = (level: number) => {
-    inputLevelMeter.value = level * 100;
+    const dB = 20 * Math.log10(level);
+    const value = Math.max(0, (dB / 60 + 1) * 100);
+    setInputLevel(value);
 };
 
 const div = document.getElementById("gd");
-const g = new Dygraph(div, [
-    [0, 0],
-    [1, 0],
-]);
+let graph = new Dygraph(
+    div,
+    [
+        [0, 0],
+        [1, 0],
+    ],
+    { labels: ["time in seconds", "IR"] }
+);
 
 let currentImpulseResponse: AudioBuffer;
 engine.onImpulseResponseReady = (ir: AudioBuffer) => {
@@ -33,12 +38,15 @@ engine.onImpulseResponseReady = (ir: AudioBuffer) => {
     const irData = ir.getChannelData(0);
     const sampleRate = ir.sampleRate;
 
+    if (graph != null) graph.destroy();
+
     var datapoints = [];
     for (var i = 0; i < irData.length; ++i)
         datapoints.push([i / sampleRate, irData[i]]);
 
+    var opts = { labels: ["time in seconds", "IR"] };
     const div = document.getElementById("gd");
-    const g = new Dygraph(div, datapoints);
+    graph = new Dygraph(div, datapoints, opts);
 };
 
 inputDeviceSelector.oninput = async () => {

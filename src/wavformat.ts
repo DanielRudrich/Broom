@@ -1,3 +1,5 @@
+// this class only handles mono buffers for now
+// for multichannel, input data has to be interleaved first
 export class WAVFormat {
     encodedBuffer: ArrayBuffer;
     readonly numChannels: number;

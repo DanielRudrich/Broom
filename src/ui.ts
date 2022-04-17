@@ -23,10 +23,15 @@ function setUpSlider(name: string): HTMLInputElement {
 export const sweepLengthSlider = setUpSlider("sweepLength");
 export const sweepStartFrequencySlider = setUpSlider("sweepStartFrequency");
 
-export const inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
+const inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
+const measurementLevelMeter = <HTMLProgressElement>gid("measurementLevelMeter");
+
 export const inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
 
-function updateDevices() {}
+export function setInputLevel(level: number) {
+    inputLevelMeter.value = level;
+    measurementLevelMeter.value = level;
+}
 
 function gotDevices(
     selectedDevice: string,
