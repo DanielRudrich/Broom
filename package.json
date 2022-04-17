@@ -1,0 +1,23 @@
+{
+  "name": "broom",
+  "version": "1.0.0",
+  "description": "Room impulse response measurement in the browser.",
+  "main": "main.js",
+  "scripts": {
+    "watch": "webpack --watch",
+    "build": "webpack --mode production"
+  },
+  "author": "Daniel Rudrich",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/audioworklet": "^0.0.26",
+    "@types/chart.js": "^2.9.36",
+    "@types/dygraphs": "^2.1.4",
+    "chart.js": "^3.7.1",
+    "dygraphs": "^2.1.0",
+    "ts-loader": "^9.2.8",
+    "typescript": "^4.6.3",
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
+  }
+}

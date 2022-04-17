@@ -1,0 +1,4 @@
+node_modules
+dist/*
+!dist/favicon.svg
+!dist/index.html
