@@ -5,6 +5,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Broom - sweep the room!</title>
+  <meta name="description" content="Browser-based room impulse response measurement.">
+  <meta property="og:url" content="https://danielrudrich.github.io/Broom/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Broom - sweep the room!">
+  <meta property="og:description" content="Browser-based room impulse response measurement.">
+  <meta property="og:image" content="https://danielrudrich.github.io/Broom/broom.png" />
   <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css" />
   <link rel="icon" href="favicon.svg" type="image/svg-xml">
   <script async defer src="https://buttons.github.io/buttons.js"></script>
@@ -70,7 +76,7 @@
     <article>
       <hgroup>
         <h2>Sweep the room</h2>
-        <h2>What's it all about.</h2>
+        <h2>What it's all about.</h2>
       </hgroup>
       <p>Use the power of the <strong>Web Audio API</strong> to capture <strong>Room Impulse Responses</strong>... in
         the browser! This web app uses a sine sweep to excite the room. The microphone captures the response of the room
@@ -85,7 +91,7 @@
       <article>
         <hgroup>
           <h2>Audio Settings</h2>
-          <h2>Configure input device.</h2>
+          <h2>Configure the input device.</h2>
         </hgroup>
 
         <label for="inputDevices">Input Device
@@ -103,7 +109,7 @@
       <article>
         <hgroup>
           <h2>Sweep Settings</h2>
-          <h2>Adjust the sweep settings and generate the excitation signal.</h2>
+          <h2>Adjust the excitation signal.</h2>
         </hgroup>
 
         <label for="sweepLength">Duration: <b><span id="sweepLengthValue">5</span>s</b>
@@ -117,27 +123,33 @@
 
     <!-- Measurement-->
     <article>
-      <hgroup>
-        <h2>Measurement</h2>
-        <h2>Start and stop measurement.</h2>
-      </hgroup>
+      <div class="grid">
+        <hgroup>
+          <h2>Measurement</h2>
+          <h2>Start and stop measurement.</h2>
+        </hgroup>
+        <div>
+          <label for="measurementLevelMeter">Input level
+            <progress id="measurementLevelMeter" value="0" max="100"></progress>
+          </label>
+        </div>
+      </div>
 
       <div class="grid">
         <label for="recordDelay">
           Record delay in s <em
             data-tooltip="Delay between clicking the record button and actual start of recording">(?)</em>
-          <input type="text" id="recordDelay" value="1" required>
+          <input type="number" id="recordDelay" value="1" required>
         </label>
 
         <label for="irLength">
           Impulse response length in s <em data-tooltip="Length of cut IR in s">(?)</em>
-          <input type="text" id="irLength" value="2" required>
+          <input type="number" id="irLength" value="2" required>
         </label>
-
 
         <label for="fadeInTime">
           Fade-in time in ms <em data-tooltip="Onset cut of IR (experimental)">(?)</em>
-          <input type="text" id="fadeInTime" value="50" required>
+          <input type="number" id="fadeInTime" value="50" required>
         </label>
       </div>
 
@@ -149,13 +161,22 @@
       <p>
       <div id="gd" style="width: 100%; height: 300px"></div>
       </p>
-      <div class="grid">
-        <button id="downloadButton" class="outline" role="button">Download Impulse
-          Response</button>
-      </div>
+      <p>
+        <small>Zoom-in by selecting an area, zoom-out again by double-clicking.</small>
+      </p>
+      <button id="normalizeButton" class="outline">Normalize impulse response</button>
     </article>
 
+    <article>
+      <hgroup>
+        <h2>Export</h2>
+        <h2>Download the IR as a Wav file.</h2>
+      </hgroup>
 
+      <button id="downloadButton" class="outline" role="button">Download Impulse
+        Response</button>
+
+    </article>
 
   </main>
 
