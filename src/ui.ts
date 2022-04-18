@@ -14,6 +14,7 @@ function setUpSlider(name: string): HTMLInputElement {
     return slider;
 }
 export const inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
+export const refreshButton = <HTMLButtonElement>gid("refreshDevices");
 export const sweepLengthSlider = setUpSlider("sweepLength");
 export const sweepStartFrequencySlider = setUpSlider("sweepStartFrequency");
 
@@ -26,7 +27,17 @@ export const measurementProgress = <HTMLProgressElement>(
 const inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
 const measurementLevelMeter = <HTMLProgressElement>gid("measurementLevelMeter");
 
-export const normalizeButton = <HTMLButtonElement>gid("normalizeButton");
+export const fadeInTime = <HTMLInputElement>gid("fadeInTime");
+export const fadeOutTime = <HTMLInputElement>gid("fadeOutTime");
+export const fadeInButton = <HTMLButtonElement>gid("fadeInButton");
+export const fadeOutButton = <HTMLButtonElement>gid("fadeOutButton");
+
+export const decibelsSwitch = <HTMLInputElement>gid("decibelsSwitch");
+export const normalizeButton = <HTMLAnchorElement>gid("normalizeButton");
+export const cutToSelectionButton = <HTMLAnchorElement>(
+    gid("cutToSelectionButton")
+);
+export const resetButton = <HTMLAnchorElement>gid("resetButton");
 
 export function setInputLevel(level: number) {
     inputLevelMeter.value = level;
@@ -100,27 +111,12 @@ export namespace SweepUI {
 // ==== MEASUREMENT SETTINGS ============ //
 const recordDelay = <HTMLInputElement>document.getElementById("recordDelay");
 const irLength = <HTMLInputElement>document.getElementById("irLength");
-const fadeInTime = <HTMLInputElement>document.getElementById("fadeInTime");
+
 export namespace MeasurementUI {
     export function getSettings() {
         return new MeasurementSettings(
             parseInt(recordDelay.value),
-            parseInt(irLength.value),
-            parseInt(fadeInTime.value)
+            parseInt(irLength.value)
         );
     }
 }
-
-export var onNewInputStream: (stream: MediaStream) => void;
-
-function gotStream(receivedStream: MediaStream) {
-    stream = receivedStream;
-    if (onNewInputStream) onNewInputStream(receivedStream);
-    return navigator.mediaDevices.enumerateDevices();
-}
-
-export let stream: MediaStream;
-
-export const refreshButton = <HTMLButtonElement>(
-    document.getElementById("refreshDevices")
-);

@@ -1,6 +1,13 @@
 import Dygraph from "dygraphs";
 import { WAVFormat } from "./wavformat";
-import { downloadWav, normalizeBuffer } from "./utilities";
+import {
+    applyFadeIn,
+    applyFadeOut,
+    copyBuffer,
+    downloadWav,
+    normalizeBuffer,
+    trimBuffer,
+} from "./utilities";
 import {
     SweepUI,
     MeasurementUI,
@@ -11,7 +18,14 @@ import {
     downloadButton,
     inputDeviceSelector,
     setInputLevel,
+    decibelsSwitch,
     normalizeButton,
+    cutToSelectionButton,
+    resetButton,
+    fadeInTime,
+    fadeInButton,
+    fadeOutTime,
+    fadeOutButton,
 } from "./ui";
 
 import { engine } from "./audio";
@@ -32,11 +46,13 @@ let graph = new Dygraph(
     { labels: ["time in seconds", "IR"] }
 );
 
-let currentImpulseResponse: AudioBuffer;
+let originalImpulseResponse: AudioBuffer;
+let processedImpulseResponse: AudioBuffer;
 engine.onImpulseResponseReady = (ir: AudioBuffer) => {
     setMeasurementState(MeasurementState.Idle);
-    currentImpulseResponse = ir;
-    plotBuffer(ir);
+    originalImpulseResponse = ir;
+    processedImpulseResponse = copyBuffer(originalImpulseResponse);
+    plotBuffer(processedImpulseResponse);
 };
 
 function plotBuffer(buffer: AudioBuffer) {
@@ -46,10 +62,18 @@ function plotBuffer(buffer: AudioBuffer) {
     if (graph != null) graph.destroy();
 
     var datapoints = [];
-    for (var i = 0; i < data.length; ++i)
-        datapoints.push([i / sampleRate, data[i]]);
+    if (decibelsSwitch.checked) {
+        for (var i = 0; i < data.length; ++i)
+            datapoints.push([
+                i / sampleRate,
+                20 * Math.log10(0.0000001 + Math.abs(data[i])),
+            ]);
+    } else {
+        for (var i = 0; i < data.length; ++i)
+            datapoints.push([i / sampleRate, data[i]]);
+    }
 
-    var opts = { labels: ["time in seconds", "IR"] };
+    var opts = { labels: ["time in seconds", "IR"], color: "#1F96BF" };
     const div = document.getElementById("gd");
     graph = new Dygraph(div, datapoints, opts);
 }
@@ -112,16 +136,56 @@ startButton.onclick = async () => {
     }
 };
 
-normalizeButton.onclick = async () => {
-    if (currentImpulseResponse) {
-        normalizeBuffer(currentImpulseResponse);
-        plotBuffer(currentImpulseResponse);
+decibelsSwitch.oninput = async () => {
+    if (processedImpulseResponse) plotBuffer(processedImpulseResponse);
+};
+
+normalizeButton.onclick = () => {
+    if (processedImpulseResponse) {
+        normalizeBuffer(processedImpulseResponse);
+        plotBuffer(processedImpulseResponse);
     }
+    return false;
 };
 
 downloadButton.onclick = async () => {
-    if (currentImpulseResponse) {
-        const wav = new WAVFormat(currentImpulseResponse);
+    if (processedImpulseResponse) {
+        const wav = new WAVFormat(processedImpulseResponse);
         downloadWav(wav);
+    }
+};
+
+cutToSelectionButton.onclick = () => {
+    if (processedImpulseResponse) {
+        const visibleRange = graph.xAxisRange();
+        processedImpulseResponse = trimBuffer(
+            processedImpulseResponse,
+            visibleRange[0],
+            visibleRange[1]
+        );
+        plotBuffer(processedImpulseResponse);
+    }
+    return false;
+};
+
+resetButton.onclick = () => {
+    if (processedImpulseResponse) {
+        processedImpulseResponse = copyBuffer(originalImpulseResponse);
+        plotBuffer(processedImpulseResponse);
+    }
+    return false;
+};
+
+fadeInButton.onclick = () => {
+    if (processedImpulseResponse) {
+        applyFadeIn(processedImpulseResponse, parseInt(fadeInTime.value));
+        plotBuffer(processedImpulseResponse);
+    }
+};
+
+fadeOutButton.onclick = () => {
+    if (processedImpulseResponse) {
+        applyFadeOut(processedImpulseResponse, parseInt(fadeOutTime.value));
+        plotBuffer(processedImpulseResponse);
     }
 };

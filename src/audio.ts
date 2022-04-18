@@ -60,6 +60,11 @@ class AudioEngine {
                 echoCancellation: false,
                 autoGainControl: false,
                 noiseSuppression: false,
+                googAutoGainControl: false,
+                googAutoGainControl2: false,
+                googNoiseSuppression: false,
+                mozAutoGainControl: false,
+                mozNoiseSuppression: false,
                 deviceId: devideIdentifier
                     ? { exact: devideIdentifier }
                     : undefined,
