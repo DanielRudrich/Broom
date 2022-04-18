@@ -27,8 +27,8 @@ You will need to start a webserver serving the `dist/` folder e.g. with live-sha
 
 ## Planned Features
 - Multi-channel capturing (afaik, browsers should be able to handle up to three input channels)
-- IR display in decibels, makes noise floor visible, makes dialing in the necessary sweep length easier.
 
 ## Known Issues
+- Seems that some browser still apply some auto-gain, first measurement could be affected by that.
 - Not compatible with older browsers (needs [`AudioWorklet`](https://caniuse.com/?search=audioworklet), and no feedback to the user if unsupported
 - Samplerate handling problematic on Firefox, as it doesn't support `sampleRate` constraint
