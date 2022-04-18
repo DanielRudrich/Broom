@@ -123,16 +123,10 @@
 
     <!-- Measurement-->
     <article>
-      <div class="grid">
-        <hgroup>
-          <h2>Measurement</h2>
-          <h2>Start and stop measurement.</h2>
-        </hgroup>
-        <div>
-          <label for="measurementLevelMeter">Input level
-            <progress id="measurementLevelMeter" value="0" max="100"></progress>
-          </label>
-        </div>
+      <hgroup>
+        <h2>Measurement</h2>
+        <h2>Start the measurement.</h2>
+      </hgroup>
       </div>
 
       <div class="grid">
@@ -146,35 +140,52 @@
           Impulse response length in s <em data-tooltip="Length of cut IR in s">(?)</em>
           <input type="number" id="irLength" value="2" required>
         </label>
-
-        <label for="fadeInTime">
-          Fade-in time in ms <em data-tooltip="Onset cut of IR (experimental)">(?)</em>
-          <input type="number" id="fadeInTime" value="50" required>
+        <label for="measurementLevelMeter">Input level
+          <progress id="measurementLevelMeter" value="0" max="100"></progress>
         </label>
       </div>
-
       <progress id="measurementProgress" hidden></progress>
-      <div class="grid">
-        <button id="start">Start measurement</button>
-      </div>
+      <button id="start">Start measurement</button>
+    </article>
+
+    <article>
+      <hgroup>
+        <h2>Impulse Response</h2>
+        <h2>Visualize and adjust the impulse response.</h2>
+      </hgroup>
 
       <p>
       <div id="gd" style="width: 100%; height: 300px"></div>
       </p>
-      <div class="grid">
-        <p>
-          <small>Zoom-in by selecting an area, zoom-out again by double-clicking.</small>
-        </p>
-        <fieldset>
-          <label for="decibelsSwitch">
-            <input type="checkbox" id="decibelsSwitch" role="switch">
-            Show decibels
-          </label>
 
+      <div class="grid">
+        <small><strong>Zoom-in</strong>: select an area. <strong>Zoom-out</strong>: double-click.</small>
+        <fieldset>
+          <small><label for="decibelsSwitch">
+              <input type="checkbox" id="decibelsSwitch" role="switch">
+              Show decibels
+            </label></small>
         </fieldset>
       </div>
-      <button id="normalizeButton" class="outline">Normalize impulse response</button>
+
+      <p>
+        <a href="#" role="button" id="normalizeButton" class="outline">Normalize</a>
+        <a href="#" role="button" id="cutToSelectionButton" class="outline">Cut to time selection</a>
+        <a href="#" role="button" id="resetButton" class="outline secondary">Reset to original</a>
+      </p>
+      <details>
+        <summary>Fade-in / Fade-out</summary>
+        <p><small>Time are in milliseconds!</small></p>
+        <div class="grid">
+          <input type="number" id="fadeInTime" value="50" required>
+          <button role="button" id="fadeInButton" class="outline">Apply fade-in</button>
+          <input type="number" id="fadeOutTime" value="500" required>
+          <button role="button" id="fadeOutButton" class="outline">Apply fade-out</button>
+        </div>
+      </details>
     </article>
+
+
 
     <article>
       <hgroup>

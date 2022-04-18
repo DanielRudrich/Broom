@@ -1,16 +1,11 @@
 import { Sweep } from "./sweep";
 
 export class MeasurementSettings {
-    constructor(
-        readonly startDelay: number,
-        readonly length: number,
-        readonly fadeIn: number
-    ) {}
+    constructor(readonly startDelay: number, readonly length: number) {}
 }
 
 export class SweepProcessorNode extends AudioWorkletNode {
     sweep: Sweep;
-    fadeSetting: number;
 
     onImpulseResponseReady: (ir: AudioBuffer) => void;
     onInputLevelUpdate: (level: number) => void;
@@ -40,7 +35,6 @@ export class SweepProcessorNode extends AudioWorkletNode {
     }
 
     startRecording(settings: MeasurementSettings) {
-        this.fadeSetting = settings.fadeIn;
         this.port.postMessage({ action: "startRecording", settings });
     }
 
@@ -103,13 +97,6 @@ export class SweepProcessorNode extends AudioWorkletNode {
         const irData = impulseResponse.getChannelData(0);
         for (var i = 0; i < cutImpulseResponse.length; ++i)
             cutIrData[i] = irData[sweepLength + i];
-
-        // fade in
-        const fadeInSamples = (this.fadeSetting * sampleRate) / 1000;
-        for (var i = 0; i < fadeInSamples; ++i) {
-            const w = Math.sin(((i / fadeInSamples) * Math.PI) / 2) ** 2;
-            cutIrData[i] *= w;
-        }
 
         if (this.onImpulseResponseReady)
             this.onImpulseResponseReady(cutImpulseResponse);
