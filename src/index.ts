@@ -12,6 +12,7 @@ import {
     inputDeviceSelector,
     setInputLevel,
     normalizeButton,
+    decibelsSwitch,
 } from "./ui";
 
 import { engine } from "./audio";
@@ -46,10 +47,19 @@ function plotBuffer(buffer: AudioBuffer) {
     if (graph != null) graph.destroy();
 
     var datapoints = [];
-    for (var i = 0; i < data.length; ++i)
-        datapoints.push([i / sampleRate, data[i]]);
+    if (decibelsSwitch.checked) {
+        console.log("db");
+        for (var i = 0; i < data.length; ++i)
+            datapoints.push([
+                i / sampleRate,
+                20 * Math.log10(0.0000001 + Math.abs(data[i])),
+            ]);
+    } else {
+        for (var i = 0; i < data.length; ++i)
+            datapoints.push([i / sampleRate, data[i]]);
+    }
 
-    var opts = { labels: ["time in seconds", "IR"] };
+    var opts = { labels: ["time in seconds", "IR"], color: "#1F96BF" };
     const div = document.getElementById("gd");
     graph = new Dygraph(div, datapoints, opts);
 }
@@ -110,6 +120,10 @@ startButton.onclick = async () => {
         engine.stopMeasurement();
         setMeasurementState(MeasurementState.Idle);
     }
+};
+
+decibelsSwitch.oninput = async () => {
+    if (currentImpulseResponse) plotBuffer(currentImpulseResponse);
 };
 
 normalizeButton.onclick = async () => {

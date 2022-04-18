@@ -26,6 +26,7 @@ export const measurementProgress = <HTMLProgressElement>(
 const inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
 const measurementLevelMeter = <HTMLProgressElement>gid("measurementLevelMeter");
 
+export const decibelsSwitch = <HTMLInputElement>gid("decibelsSwitch");
 export const normalizeButton = <HTMLButtonElement>gid("normalizeButton");
 
 export function setInputLevel(level: number) {
