@@ -5,12 +5,6 @@ function gid(id: string) {
     return document.getElementById(id);
 }
 
-export const startButton = gid("start");
-export const downloadButton = gid("downloadButton");
-export const measurementProgress = <HTMLProgressElement>(
-    gid("measurementProgress")
-);
-
 function setUpSlider(name: string): HTMLInputElement {
     const slider = (<HTMLInputElement>gid(name)) as HTMLInputElement;
     const value = <HTMLInputElement>gid(name + "Value");
@@ -19,14 +13,25 @@ function setUpSlider(name: string): HTMLInputElement {
     };
     return slider;
 }
-
+export const inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
 export const sweepLengthSlider = setUpSlider("sweepLength");
 export const sweepStartFrequencySlider = setUpSlider("sweepStartFrequency");
 
-export const inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
-export const inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
+export const startButton = gid("start");
+export const downloadButton = gid("downloadButton");
+export const measurementProgress = <HTMLProgressElement>(
+    gid("measurementProgress")
+);
 
-function updateDevices() {}
+const inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
+const measurementLevelMeter = <HTMLProgressElement>gid("measurementLevelMeter");
+
+export const normalizeButton = <HTMLButtonElement>gid("normalizeButton");
+
+export function setInputLevel(level: number) {
+    inputLevelMeter.value = level;
+    measurementLevelMeter.value = level;
+}
 
 function gotDevices(
     selectedDevice: string,

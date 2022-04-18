@@ -1,7 +1,6 @@
 import Dygraph from "dygraphs";
 import { WAVFormat } from "./wavformat";
-import { downloadWav } from "./utilities";
-import { SweepProcessorNode } from "./sweepProcessorNode";
+import { downloadWav, normalizeBuffer } from "./utilities";
 import {
     SweepUI,
     MeasurementUI,
@@ -11,35 +10,49 @@ import {
     measurementProgress,
     downloadButton,
     inputDeviceSelector,
-    inputLevelMeter,
+    setInputLevel,
+    normalizeButton,
 } from "./ui";
 
 import { engine } from "./audio";
 
 engine.onInputLevelUpdate = (level: number) => {
-    inputLevelMeter.value = level * 100;
+    const dB = 20 * Math.log10(level);
+    const value = Math.max(0, (dB / 60 + 1) * 100);
+    setInputLevel(value);
 };
 
 const div = document.getElementById("gd");
-const g = new Dygraph(div, [
-    [0, 0],
-    [1, 0],
-]);
+let graph = new Dygraph(
+    div,
+    [
+        [0, 0],
+        [1, 0],
+    ],
+    { labels: ["time in seconds", "IR"] }
+);
 
 let currentImpulseResponse: AudioBuffer;
 engine.onImpulseResponseReady = (ir: AudioBuffer) => {
     setMeasurementState(MeasurementState.Idle);
     currentImpulseResponse = ir;
-    const irData = ir.getChannelData(0);
-    const sampleRate = ir.sampleRate;
+    plotBuffer(ir);
+};
+
+function plotBuffer(buffer: AudioBuffer) {
+    const data = buffer.getChannelData(0);
+    const sampleRate = buffer.sampleRate;
+
+    if (graph != null) graph.destroy();
 
     var datapoints = [];
-    for (var i = 0; i < irData.length; ++i)
-        datapoints.push([i / sampleRate, irData[i]]);
+    for (var i = 0; i < data.length; ++i)
+        datapoints.push([i / sampleRate, data[i]]);
 
+    var opts = { labels: ["time in seconds", "IR"] };
     const div = document.getElementById("gd");
-    const g = new Dygraph(div, datapoints);
-};
+    graph = new Dygraph(div, datapoints, opts);
+}
 
 inputDeviceSelector.oninput = async () => {
     openDeviceAndUpdateList();
@@ -96,6 +109,13 @@ startButton.onclick = async () => {
     } else {
         engine.stopMeasurement();
         setMeasurementState(MeasurementState.Idle);
+    }
+};
+
+normalizeButton.onclick = async () => {
+    if (currentImpulseResponse) {
+        normalizeBuffer(currentImpulseResponse);
+        plotBuffer(currentImpulseResponse);
     }
 };
 
