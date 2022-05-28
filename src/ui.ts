@@ -15,6 +15,7 @@ function setUpSlider(name: string): HTMLInputElement {
 }
 export const inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
 export const refreshButton = <HTMLButtonElement>gid("refreshDevices");
+export const sampleRateInfo = gid("sampleRateInfo");
 export const sweepLengthSlider = setUpSlider("sweepLength");
 export const sweepStartFrequencySlider = setUpSlider("sweepStartFrequency");
 
