@@ -115,8 +115,8 @@ const irLength = <HTMLInputElement>document.getElementById("irLength");
 export namespace MeasurementUI {
     export function getSettings() {
         return new MeasurementSettings(
-            parseInt(recordDelay.value),
-            parseInt(irLength.value)
+            Math.max(0, parseFloat(recordDelay.value)),
+            Math.max(0.1, parseFloat(irLength.value))
         );
     }
 }
