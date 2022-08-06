@@ -11,9 +11,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/audioworklet": "^0.0.26",
-    "@types/chart.js": "^2.9.36",
     "@types/dygraphs": "^2.1.4",
-    "chart.js": "^3.7.1",
     "dygraphs": "^2.1.0",
     "ts-loader": "^9.2.8",
     "typescript": "^4.6.3",
