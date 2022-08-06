@@ -15,6 +15,7 @@ function setUpSlider(name: string): HTMLInputElement {
 }
 export const inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
 export const refreshButton = <HTMLButtonElement>gid("refreshDevices");
+export const sampleRateInfo = gid("sampleRateInfo");
 export const sweepLengthSlider = setUpSlider("sweepLength");
 export const sweepStartFrequencySlider = setUpSlider("sweepStartFrequency");
 
@@ -115,8 +116,8 @@ const irLength = <HTMLInputElement>document.getElementById("irLength");
 export namespace MeasurementUI {
     export function getSettings() {
         return new MeasurementSettings(
-            parseInt(recordDelay.value),
-            parseInt(irLength.value)
+            Math.max(0, parseFloat(recordDelay.value)),
+            Math.max(0.1, parseFloat(irLength.value))
         );
     }
 }

@@ -26,6 +26,7 @@ import {
     fadeInButton,
     fadeOutTime,
     fadeOutButton,
+    sampleRateInfo,
 } from "./ui";
 
 import { engine } from "./audio";
@@ -89,6 +90,10 @@ async function openDeviceAndUpdateList() {
     AudioDevices.updateList(
         engine.stream.getTracks()[0].getSettings().deviceId
     );
+
+    sampleRateInfo.innerHTML = `Input ${
+        engine.stream.getAudioTracks()[0].getSettings().sampleRate
+    } Hz - Output ${engine.context.sampleRate} Hz `;
 }
 refreshButton.onclick = async () => {
     if (!engine.initialized) await engine.init();

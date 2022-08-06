@@ -87,8 +87,7 @@ class SweepProcessor extends AudioWorkletProcessor {
             this.delayCountDown -= numInputSamples;
             if (this.delayCountDown <= 0) this.state = State.Recording;
         } else if (this.state == State.Recording) {
-            if (inputs[0][0])
-                this.response.push(new Float32Array(inputs[0][0]));
+            this.response.push(new Float32Array(inputs[0][0]));
 
             if (this.currentPlaybackIndex < this.sweep.length) {
                 const output = outputs[0][0];
