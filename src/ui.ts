@@ -1,6 +1,6 @@
 import { SweepSettings } from "./sweep";
 import { MeasurementSettings } from "./sweepProcessorNode";
-import { MeasurementState } from "./index";
+import { MeasurementState } from "./types";
 function gid(id: string) {
     return document.getElementById(id);
 }
@@ -75,8 +75,11 @@ class GUI {
     }
 
     setInputLevel(level: number) {
-        this.inputLevelMeter.value = level;
-        this.measurementLevelMeter.value = level;
+        const dB = 20 * Math.log10(level);
+        const value = Math.max(0, (dB / 60 + 1) * 100);
+
+        this.inputLevelMeter.value = value;
+        this.measurementLevelMeter.value = value;
     }
 
     getMeasurementSettings() {

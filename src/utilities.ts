@@ -10,7 +10,7 @@ declare var URL: {
     revokeObjectURL(url: string): void;
 };
 
-export function downloadWav(wav: WAVFormat, fileName: string = "ir.wav") {
+function downloadWav(wav: WAVFormat, fileName: string = "ir.wav") {
     const blob = new window.Blob([new DataView(wav.encodedBuffer)], {
         type: "audio/wav",
     });
@@ -25,6 +25,10 @@ export function downloadWav(wav: WAVFormat, fileName: string = "ir.wav") {
     anchor.click();
     URL.revokeObjectURL(url);
     document.body.removeChild(anchor);
+}
+export function downloadBuffer(buffer: AudioBuffer) {
+    const wav = new WAVFormat(buffer);
+    downloadWav(wav);
 }
 
 export function normalizeBuffer(buffer: AudioBuffer) {
