@@ -8,33 +8,14 @@ import {
     normalizeBuffer,
     trimBuffer,
 } from "./utilities";
-import {
-    SweepUI,
-    MeasurementUI,
-    AudioDevices,
-    refreshButton,
-    startButton,
-    measurementProgress,
-    downloadButton,
-    inputDeviceSelector,
-    setInputLevel,
-    decibelsSwitch,
-    normalizeButton,
-    cutToSelectionButton,
-    resetButton,
-    fadeInTime,
-    fadeInButton,
-    fadeOutTime,
-    fadeOutButton,
-    sampleRateInfo,
-} from "./ui";
+import { userInterface } from "./ui";
 
 import { engine } from "./audio";
 
 engine.onInputLevelUpdate = (level: number) => {
     const dB = 20 * Math.log10(level);
     const value = Math.max(0, (dB / 60 + 1) * 100);
-    setInputLevel(value);
+    userInterface.setInputLevel(value);
 };
 
 const div = document.getElementById("gd");
@@ -63,7 +44,7 @@ function plotBuffer(buffer: AudioBuffer) {
     if (graph != null) graph.destroy();
 
     var datapoints = [];
-    if (decibelsSwitch.checked) {
+    if (userInterface.graphControls.isSetToDecibels()) {
         for (var i = 0; i < data.length; ++i)
             datapoints.push([
                 i / sampleRate,
@@ -79,29 +60,29 @@ function plotBuffer(buffer: AudioBuffer) {
     graph = new Dygraph(div, datapoints, opts);
 }
 
-inputDeviceSelector.oninput = async () => {
+userInterface.inputDeviceSelector.oninput = async () => {
     openDeviceAndUpdateList();
 };
 
 async function openDeviceAndUpdateList() {
-    const deviceID = AudioDevices.getSelectedDeviceIdentifier();
+    const deviceID = userInterface.getSelectedDeviceIdentifier();
     console.log(deviceID);
     await engine.openDevice(deviceID);
-    AudioDevices.updateList(
+    userInterface.updateDeviceList(
         engine.stream.getTracks()[0].getSettings().deviceId
     );
 
-    sampleRateInfo.innerHTML = `Input ${
+    userInterface.sampleRateInfo.innerHTML = `Input ${
         engine.stream.getAudioTracks()[0].getSettings().sampleRate
     } Hz - Output ${engine.context.sampleRate} Hz `;
 }
-refreshButton.onclick = async () => {
+userInterface.refreshButton.onclick = async () => {
     if (!engine.initialized) await engine.init();
     engine.resume();
     openDeviceAndUpdateList();
 };
 
-enum MeasurementState {
+export enum MeasurementState {
     Idle,
     Recording,
 }
@@ -111,23 +92,16 @@ function setMeasurementState(state: MeasurementState) {
     if (measurementState == state) return;
 
     measurementState = state;
-    if (state == MeasurementState.Recording) {
-        measurementProgress.hidden = false;
-        startButton.classList.add("secondary");
-        startButton.innerHTML = "Measurement in progress... (click to abort)";
-    } else {
-        measurementProgress.hidden = true;
-        startButton.classList.remove("secondary");
-        startButton.innerHTML = "Start measurement";
-    }
+    userInterface.setMeasurementState(state);
 }
-startButton.onclick = async () => {
+
+userInterface.startButton.onclick = async () => {
     if (!engine.initialized) await engine.init();
 
     if (measurementState == MeasurementState.Idle) {
         const result = engine.startMeasurement(
-            SweepUI.getSettings(),
-            MeasurementUI.getSettings()
+            userInterface.getSweepSettings(),
+            userInterface.getMeasurementSettings()
         );
 
         if (result) {
@@ -141,11 +115,11 @@ startButton.onclick = async () => {
     }
 };
 
-decibelsSwitch.oninput = async () => {
+userInterface.graphControls.decibelsSwitch.oninput = async () => {
     if (processedImpulseResponse) plotBuffer(processedImpulseResponse);
 };
 
-normalizeButton.onclick = () => {
+userInterface.graphControls.normalizeButton.onclick = () => {
     if (processedImpulseResponse) {
         normalizeBuffer(processedImpulseResponse);
         plotBuffer(processedImpulseResponse);
@@ -153,14 +127,14 @@ normalizeButton.onclick = () => {
     return false;
 };
 
-downloadButton.onclick = async () => {
+userInterface.downloadButton.onclick = async () => {
     if (processedImpulseResponse) {
         const wav = new WAVFormat(processedImpulseResponse);
         downloadWav(wav);
     }
 };
 
-cutToSelectionButton.onclick = () => {
+userInterface.graphControls.cutToSelectionButton.onclick = () => {
     if (processedImpulseResponse) {
         const visibleRange = graph.xAxisRange();
         processedImpulseResponse = trimBuffer(
@@ -173,7 +147,7 @@ cutToSelectionButton.onclick = () => {
     return false;
 };
 
-resetButton.onclick = () => {
+userInterface.graphControls.resetButton.onclick = () => {
     if (processedImpulseResponse) {
         processedImpulseResponse = copyBuffer(originalImpulseResponse);
         plotBuffer(processedImpulseResponse);
@@ -181,16 +155,22 @@ resetButton.onclick = () => {
     return false;
 };
 
-fadeInButton.onclick = () => {
+userInterface.graphControls.fadeInButton.onclick = () => {
     if (processedImpulseResponse) {
-        applyFadeIn(processedImpulseResponse, parseInt(fadeInTime.value));
+        applyFadeIn(
+            processedImpulseResponse,
+            userInterface.graphControls.getFadeInTime()
+        );
         plotBuffer(processedImpulseResponse);
     }
 };
 
-fadeOutButton.onclick = () => {
+userInterface.graphControls.fadeOutButton.onclick = () => {
     if (processedImpulseResponse) {
-        applyFadeOut(processedImpulseResponse, parseInt(fadeOutTime.value));
+        applyFadeOut(
+            processedImpulseResponse,
+            userInterface.graphControls.getFadeOutTime()
+        );
         plotBuffer(processedImpulseResponse);
     }
 };

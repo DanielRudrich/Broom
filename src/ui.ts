@@ -1,6 +1,6 @@
 import { SweepSettings } from "./sweep";
 import { MeasurementSettings } from "./sweepProcessorNode";
-
+import { MeasurementState } from "./index";
 function gid(id: string) {
     return document.getElementById(id);
 }
@@ -13,111 +13,134 @@ function setUpSlider(name: string): HTMLInputElement {
     };
     return slider;
 }
-export const inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
-export const refreshButton = <HTMLButtonElement>gid("refreshDevices");
-export const sampleRateInfo = gid("sampleRateInfo");
-export const sweepLengthSlider = setUpSlider("sweepLength");
-export const sweepStartFrequencySlider = setUpSlider("sweepStartFrequency");
 
-export const startButton = gid("start");
-export const downloadButton = gid("downloadButton");
-export const measurementProgress = <HTMLProgressElement>(
-    gid("measurementProgress")
-);
+class GraphControls {
+    fadeInTime = <HTMLInputElement>gid("fadeInTime");
+    fadeOutTime = <HTMLInputElement>gid("fadeOutTime");
+    fadeInButton = <HTMLButtonElement>gid("fadeInButton");
+    fadeOutButton = <HTMLButtonElement>gid("fadeOutButton");
 
-const inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
-const measurementLevelMeter = <HTMLProgressElement>gid("measurementLevelMeter");
+    decibelsSwitch = <HTMLInputElement>gid("decibelsSwitch");
+    normalizeButton = <HTMLAnchorElement>gid("normalizeButton");
+    cutToSelectionButton = <HTMLAnchorElement>gid("cutToSelectionButton");
+    resetButton = <HTMLAnchorElement>gid("resetButton");
 
-export const fadeInTime = <HTMLInputElement>gid("fadeInTime");
-export const fadeOutTime = <HTMLInputElement>gid("fadeOutTime");
-export const fadeInButton = <HTMLButtonElement>gid("fadeInButton");
-export const fadeOutButton = <HTMLButtonElement>gid("fadeOutButton");
+    isSetToDecibels(): boolean {
+        return this.decibelsSwitch.checked;
+    }
 
-export const decibelsSwitch = <HTMLInputElement>gid("decibelsSwitch");
-export const normalizeButton = <HTMLAnchorElement>gid("normalizeButton");
-export const cutToSelectionButton = <HTMLAnchorElement>(
-    gid("cutToSelectionButton")
-);
-export const resetButton = <HTMLAnchorElement>gid("resetButton");
+    getFadeInTime(): number {
+        return parseInt(this.fadeInTime.value);
+    }
 
-export function setInputLevel(level: number) {
-    inputLevelMeter.value = level;
-    measurementLevelMeter.value = level;
+    getFadeOutTime(): number {
+        return parseInt(this.fadeOutTime.value);
+    }
 }
+class GUI {
+    inputDeviceSelector = <HTMLSelectElement>gid("inputDevices");
+    refreshButton = <HTMLButtonElement>gid("refreshDevices");
+    sampleRateInfo = gid("sampleRateInfo");
+    sweepLengthSlider = setUpSlider("sweepLength");
+    sweepStartFrequencySlider = setUpSlider("sweepStartFrequency");
+
+    // measurement settings
+    recordDelay = <HTMLInputElement>document.getElementById("recordDelay");
+    irLength = <HTMLInputElement>document.getElementById("irLength");
+
+    startButton = gid("start");
+    measurementProgress = <HTMLProgressElement>gid("measurementProgress");
+
+    // level meters
+    inputLevelMeter = <HTMLProgressElement>gid("inputLevelMeter");
+    measurementLevelMeter = <HTMLProgressElement>gid("measurementLevelMeter");
+
+    graphControls = new GraphControls();
+
+    downloadButton = gid("downloadButton");
+
+    constructor() {}
+
+    setMeasurementState(state: MeasurementState) {
+        if (state == MeasurementState.Recording) {
+            this.measurementProgress.hidden = false;
+            this.startButton.classList.add("secondary");
+            this.startButton.innerHTML =
+                "Measurement in progress... (click to abort)";
+        } else {
+            this.measurementProgress.hidden = true;
+            this.startButton.classList.remove("secondary");
+            this.startButton.innerHTML = "Start measurement";
+        }
+    }
+
+    setInputLevel(level: number) {
+        this.inputLevelMeter.value = level;
+        this.measurementLevelMeter.value = level;
+    }
+
+    getMeasurementSettings() {
+        return new MeasurementSettings(
+            Math.max(0, parseFloat(this.recordDelay.value)),
+            Math.max(0.1, parseFloat(this.irLength.value))
+        );
+    }
+
+    getSweepSettings() {
+        return new SweepSettings(
+            parseInt(userInterface.sweepLengthSlider.value),
+            parseInt(userInterface.sweepStartFrequencySlider.value)
+        );
+    }
+
+    getSelectedDeviceIdentifier() {
+        return this.inputDeviceSelector.value;
+    }
+
+    updateDeviceList(deviceId: string) {
+        navigator.mediaDevices
+            .enumerateDevices()
+            .then(gotDevices.bind(this, deviceId));
+    }
+}
+
+export const userInterface = new GUI();
 
 function gotDevices(
     selectedDevice: string,
     deviceInfos: Array<MediaDeviceInfo>
 ) {
-    while (inputDeviceSelector.firstChild)
-        inputDeviceSelector.removeChild(inputDeviceSelector.firstChild);
+    while (userInterface.inputDeviceSelector.firstChild)
+        userInterface.inputDeviceSelector.removeChild(
+            userInterface.inputDeviceSelector.firstChild
+        );
 
     const option = <HTMLOptionElement>document.createElement("option");
     option.value = "";
     option.text = "Select input device";
     option.disabled = true;
-    inputDeviceSelector.appendChild(option);
+    userInterface.inputDeviceSelector.appendChild(option);
 
     deviceInfos.forEach((info: MediaDeviceInfo) => {
         const option = document.createElement("option");
         option.value = info.deviceId;
         if (info.kind === "audioinput") {
             option.text =
-                info.label || `microphone ${inputDeviceSelector.length + 1}`;
-            inputDeviceSelector.appendChild(option);
+                info.label ||
+                `microphone ${userInterface.inputDeviceSelector.length + 1}`;
+            userInterface.inputDeviceSelector.appendChild(option);
         }
     });
 
-    inputDeviceSelector.childNodes.forEach((element: any) => {
+    userInterface.inputDeviceSelector.childNodes.forEach((element: any) => {
         console.log(element);
     });
 
     if (
         Array.prototype.slice
-            .call(inputDeviceSelector.childNodes)
+            .call(userInterface.inputDeviceSelector.childNodes)
             .some((n: any) => n.value === selectedDevice)
     ) {
-        inputDeviceSelector.value = selectedDevice;
-    }
-}
-
-export namespace AudioDevices {
-    export function getSelectedDeviceIdentifier() {
-        return inputDeviceSelector.value;
-    }
-
-    export function updateList(deviceId: any) {
-        navigator.mediaDevices
-            .enumerateDevices()
-            .then(gotDevices.bind(this, deviceId));
-    }
-}
-
-// ==== SWEEP SETTINGS ============ //
-export namespace SweepUI {
-    export function getSettings() {
-        return new SweepSettings(
-            parseInt(sweepLengthSlider.value),
-            parseInt(sweepStartFrequencySlider.value)
-        );
-    }
-
-    export function updateList(deviceId: any) {
-        navigator.mediaDevices
-            .enumerateDevices()
-            .then(gotDevices.bind(this, deviceId));
-    }
-}
-
-// ==== MEASUREMENT SETTINGS ============ //
-const recordDelay = <HTMLInputElement>document.getElementById("recordDelay");
-const irLength = <HTMLInputElement>document.getElementById("irLength");
-
-export namespace MeasurementUI {
-    export function getSettings() {
-        return new MeasurementSettings(
-            Math.max(0, parseFloat(recordDelay.value)),
-            Math.max(0.1, parseFloat(irLength.value))
-        );
+        userInterface.inputDeviceSelector.value = selectedDevice;
     }
 }
