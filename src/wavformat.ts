@@ -6,6 +6,9 @@ export class WAVFormat {
     readonly sampleRate: number;
 
     constructor(buffer: AudioBuffer) {
+        if (buffer.numberOfChannels != 1)
+            throw new Error("Number of channels has to be 1!");
+
         this.numChannels = buffer.numberOfChannels;
         this.sampleRate = buffer.sampleRate;
 
