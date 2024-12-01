@@ -1,34 +1,36 @@
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-![Logo](logo.svg#gh-dark-mode-only)
-![Logo](logo_light.svg#gh-light-mode-only)
+## Getting Started
 
-Room impulse response measurement - in the browser!
+First, run the development server:
 
-
-
-Check it out on [danielrudrich.github.io/Broom](https://danielrudrich.github.io/Broom/).
-
-
-## Behind the scenes
-**Broom** uses the WebAudioAPI to play out a sine sweep and record the room response with the microphone input.
-Playback and recording is handled by a custom `AudioWorkletProcessor`, so that both are in sync.
-
-The captured *sweep response* will then be deconvolved using a weighted inverse sweep to yield the impulse response of the room. This happens in an `OfflineAudioContext`. The result will be displayed and encoded into the Wav format for the user to download.
-
-## Run it locally
-In case you want to check out the project and run it locally:
-
-```sh
-npm install
-npm run build  # or `npm run watch` for an auto-recompilation if a file changes
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
-You will need to start a webserver serving the `dist/` folder e.g. with live-share, http-server, ...
 
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Planned Features
-- Multi-channel capturing (afaik, browsers should be able to handle up to three input channels)
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Known Issues
-- Seems that some browser still apply some auto-gain, first measurement could be affected by that.
-- Not compatible with older browsers (needs [`AudioWorklet`](https://caniuse.com/?search=audioworklet), and no feedback to the user if unsupported
-- Samplerate handling problematic on Firefox, as it doesn't support `sampleRate` constraint
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

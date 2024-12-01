@@ -1,28 +1,33 @@
-class SweepSettings {
-    constructor(
-        readonly lengthInSeconds: number,
-        readonly startFrequency: number
-    ) {}
+interface SweepSettings {
+    sampleRate: number;
+    lengthInSeconds: number;
+    startFrequency: number;
 }
 
 class Sweep {
     sweep: AudioBuffer;
     inverseSweep: Float32Array;
-    constructor(specs: SweepSettings, sampleRate: number) {
-        const numSamples = Math.ceil(specs.lengthInSeconds * sampleRate);
-        let w0 = (2 * Math.PI * specs.startFrequency) / sampleRate;
+    code: string;
+
+    static getCode(specs: SweepSettings) {
+        return `broom-sweep-v1-${specs.sampleRate}Hz-${specs.lengthInSeconds}s-${specs.startFrequency}Hz`;
+    }
+
+    constructor(specs: SweepSettings) {
+        const numSamples = Math.ceil(specs.lengthInSeconds * specs.sampleRate);
+        let w0 = (2 * Math.PI * specs.startFrequency) / specs.sampleRate;
         const w1 = Math.PI; // sweeping up to Nyquist
 
         // find optimal starting Frequency to start and end sweep with
         // zero-phase -> zero-ampltide
 
         w0 = Sweep.findOptimalW0(numSamples, w0, w1);
-        const newStartFrequency = (w0 * sampleRate) / (2 * Math.PI);
+        const newStartFrequency = (w0 * specs.sampleRate) / (2 * Math.PI);
         console.log(`Start frequency adjusted to ${newStartFrequency} Hz.`);
 
         this.sweep = new AudioBuffer({
             numberOfChannels: 1,
-            sampleRate: sampleRate,
+            sampleRate: specs.sampleRate,
             length: numSamples,
         });
 
@@ -42,6 +47,8 @@ class Sweep {
         }
 
         for (var i = 0; i < numSamples; ++i) this.inverseSweep[i] *= 2 / wSum;
+
+        this.code = Sweep.getCode(specs);
     }
 
     static findOptimalW0(N: number, w0: number, w1: number) {
@@ -66,4 +73,4 @@ class Sweep {
     }
 }
 
-export { Sweep, SweepSettings };
+export { Sweep, type SweepSettings };

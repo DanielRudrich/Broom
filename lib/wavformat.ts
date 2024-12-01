@@ -1,33 +1,24 @@
-// this class only handles mono buffers for now
-// for multichannel, input data has to be interleaved first
 export class WAVFormat {
     encodedBuffer: ArrayBuffer;
     readonly numChannels: number;
     readonly sampleRate: number;
 
     constructor(buffer: AudioBuffer) {
-        if (buffer.numberOfChannels != 1)
-            throw new Error("Number of channels has to be 1!");
-
         this.numChannels = buffer.numberOfChannels;
         this.sampleRate = buffer.sampleRate;
 
-        this.encodedBuffer = WAVFormat.encode(
-            buffer.getChannelData(0),
-            1,
-            buffer.sampleRate
-        );
+        this.encodedBuffer = WAVFormat.encode(buffer);
     }
 
-    private static encode(
-        data: Float32Array,
-        numChannels: number,
-        sampleRate: number
-    ): ArrayBuffer {
+    private static encode(audioBuffer: AudioBuffer): ArrayBuffer {
+        const sampleRate = audioBuffer.sampleRate;
+        const numChannels = audioBuffer.numberOfChannels;
+        const numSamples = audioBuffer.getChannelData(0).length;
+
         const headerSize = 44;
         const bitsPerSample = 32;
         const bytesPerSample = bitsPerSample / 8;
-        const dataSize = data.length * bytesPerSample;
+        const dataSize = numSamples * bytesPerSample;
         const blockAlign = numChannels * bytesPerSample;
         const buffer = new ArrayBuffer(headerSize + dataSize);
         const view = new ExtendedView(buffer);
@@ -51,22 +42,35 @@ export class WAVFormat {
         // data chunk
         view.setString(36, "data");
         view.setUint32(40, dataSize, true);
-        view.setFloat32Array(headerSize, data);
+        view.setAudioBuffer(44, audioBuffer);
 
         return buffer;
     }
 }
 
-class ExtendedView extends DataView {
+class ExtendedView<
+    TArrayBuffer extends ArrayBufferLike,
+> extends DataView<TArrayBuffer> {
     setString(byteOffset: number, stringToWrite: string) {
-        for (var i = 0; i < stringToWrite.length; i++) {
+        for (let i = 0; i < stringToWrite.length; ++i) {
             this.setUint8(byteOffset + i, stringToWrite.charCodeAt(i));
         }
     }
 
     setFloat32Array(byteOffset: number, data: Float32Array) {
-        for (var i = 0; i < data.length; i++, byteOffset += 4) {
+        for (let i = 0; i < data.length; ++i, byteOffset += 4) {
             this.setFloat32(byteOffset, data[i], true);
         }
+    }
+
+    setAudioBuffer(byteOffset: number, data: AudioBuffer) {
+        const numChannels = data.numberOfChannels;
+        const numSamples = data.getChannelData(0).length;
+
+        for (let i = 0; i < numSamples; ++i)
+            for (let ch = 0; ch < numChannels; ++ch) {
+                this.setFloat32(byteOffset, data.getChannelData(ch)[i], true);
+                byteOffset += 4;
+            }
     }
 }

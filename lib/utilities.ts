@@ -26,9 +26,9 @@ function downloadWav(wav: WAVFormat, fileName: string = "ir.wav") {
     URL.revokeObjectURL(url);
     document.body.removeChild(anchor);
 }
-export function downloadBuffer(buffer: AudioBuffer) {
+export function downloadBuffer(buffer: AudioBuffer, fileName: string) {
     const wav = new WAVFormat(buffer);
-    downloadWav(wav);
+    downloadWav(wav, fileName);
 }
 
 export function normalizeBuffer(buffer: AudioBuffer) {
@@ -63,11 +63,7 @@ export function copyBuffer(buffer: AudioBuffer): AudioBuffer {
     return copy;
 }
 
-export function trimBuffer(
-    buffer: AudioBuffer,
-    startTime: number,
-    endTime: number
-): AudioBuffer {
+export function trimBuffer(buffer: AudioBuffer, startTime: number, endTime: number): AudioBuffer {
     const sampleRate = buffer.sampleRate;
     const startSample = Math.max(0, Math.round(startTime * sampleRate));
     const endSample = Math.min(buffer.length, Math.round(endTime * sampleRate));
@@ -83,18 +79,14 @@ export function trimBuffer(
         let dataIn = buffer.getChannelData(ch);
         let dataOut = trimmed.getChannelData(ch);
 
-        for (var i = 0; i < numSamples; ++i)
-            dataOut[i] = dataIn[startSample + i];
+        for (var i = 0; i < numSamples; ++i) dataOut[i] = dataIn[startSample + i];
     }
 
     return trimmed;
 }
 
 export function applyFadeIn(buffer: AudioBuffer, fadeTimeInMs: number) {
-    const fadeInSamples = Math.min(
-        buffer.length,
-        (fadeTimeInMs * buffer.sampleRate) / 1000
-    );
+    const fadeInSamples = Math.min(buffer.length, (fadeTimeInMs * buffer.sampleRate) / 1000);
     for (var ch = 0; ch < buffer.numberOfChannels; ++ch) {
         let data = buffer.getChannelData(ch);
         for (var i = 0; i < fadeInSamples; ++i) {
@@ -104,16 +96,12 @@ export function applyFadeIn(buffer: AudioBuffer, fadeTimeInMs: number) {
 }
 
 export function applyFadeOut(buffer: AudioBuffer, fadeTimeInMs: number) {
-    const fadeOutSamples = Math.min(
-        buffer.length,
-        (fadeTimeInMs * buffer.sampleRate) / 1000
-    );
+    const fadeOutSamples = Math.min(buffer.length, (fadeTimeInMs * buffer.sampleRate) / 1000);
     let lastSample = buffer.length - 1;
     for (var ch = 0; ch < buffer.numberOfChannels; ++ch) {
         let data = buffer.getChannelData(ch);
         for (var i = 0; i < fadeOutSamples; ++i) {
-            data[lastSample - i] *=
-                Math.sin(((i / fadeOutSamples) * Math.PI) / 2) ** 2;
+            data[lastSample - i] *= Math.sin(((i / fadeOutSamples) * Math.PI) / 2) ** 2;
         }
     }
 }
