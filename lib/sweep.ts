@@ -13,6 +13,18 @@ class Sweep {
         return `broom-sweep-v1-${specs.sampleRate}Hz-${specs.lengthInSeconds}s-${specs.startFrequency}Hz`;
     }
 
+    static getSettingsFromCode(code: string): SweepSettings | undefined {
+        const regexp = /broom-sweep-v1-(\d+)Hz-(\d+)s-(\d+)Hz/;
+        const match = code.match(regexp);
+        if (!match) return undefined;
+
+        return {
+            sampleRate: parseInt(match[1]),
+            lengthInSeconds: parseInt(match[2]),
+            startFrequency: parseInt(match[3]),
+        };
+    }
+
     constructor(specs: SweepSettings) {
         const numSamples = Math.ceil(specs.lengthInSeconds * specs.sampleRate);
         let w0 = (2 * Math.PI * specs.startFrequency) / specs.sampleRate;

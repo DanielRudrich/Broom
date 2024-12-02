@@ -18,7 +18,7 @@ export class WAVFormat {
         const headerSize = 44;
         const bitsPerSample = 32;
         const bytesPerSample = bitsPerSample / 8;
-        const dataSize = numSamples * bytesPerSample;
+        const dataSize = numSamples * numChannels * bytesPerSample;
         const blockAlign = numChannels * bytesPerSample;
         const buffer = new ArrayBuffer(headerSize + dataSize);
         const view = new ExtendedView(buffer);
