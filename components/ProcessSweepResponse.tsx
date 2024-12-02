@@ -3,12 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Sweep, SweepSettings } from "@/lib/sweep";
 import { downloadBuffer } from "@/lib/utilities";
-import { useRef, useState } from "react";
-import { Cog, Download } from "lucide-react";
+import { useState } from "react";
+import { Cog } from "lucide-react";
 
 export default function ProcessSweepResponse() {
     const [file, setFile] = useState<File | null>();
@@ -134,5 +133,15 @@ async function deconvolve(
     let resultBuffer = await context.startRendering();
     console.log(resultBuffer);
 
-    downloadBuffer(resultBuffer, "ir.wav");
+    let cut = new AudioBuffer({
+        numberOfChannels: numChannels,
+        length: numSamples - sweepLength,
+        sampleRate: settings.sampleRate,
+    });
+
+    for (let i = 0; i < numChannels; ++i) {
+        resultBuffer.copyFromChannel(cut.getChannelData(i), i, sweepLength);
+    }
+
+    downloadBuffer(cut, "ir.wav");
 }
