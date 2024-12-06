@@ -85,18 +85,55 @@ export function trimBuffer(buffer: AudioBuffer, startTime: number, endTime: numb
     return trimmed;
 }
 
+export function trimBufferSamples(buffer: AudioBuffer, startSample: number, endSample: number): AudioBuffer {
+    const sampleRate = buffer.sampleRate;
+    const numSamples = endSample - startSample;
+
+    const startTime = performance.now();
+
+    const trimmed = new AudioBuffer({
+        length: numSamples,
+        numberOfChannels: buffer.numberOfChannels,
+        sampleRate,
+    });
+
+    for (var ch = 0; ch < buffer.numberOfChannels; ++ch) {
+        let dataIn = buffer.getChannelData(ch);
+        let dataOut = trimmed.getChannelData(ch);
+
+        for (var i = 0; i < numSamples; ++i) dataOut[i] = dataIn[startSample + i];
+    }
+
+    console.log(`Trimming took ${(performance.now() - startTime).toFixed(1)} ms`);
+
+    return trimmed;
+}
+
 export function applyFadeIn(buffer: AudioBuffer, fadeTimeInMs: number) {
-    const fadeInSamples = Math.min(buffer.length, (fadeTimeInMs * buffer.sampleRate) / 1000);
+    applyFadeInSamples(buffer, Math.round((fadeTimeInMs * buffer.sampleRate) / 1000));
+}
+
+export function applyFadeOut(buffer: AudioBuffer, fadeTimeInMs: number) {
+    applyFadeOutSamples(buffer, Math.round((fadeTimeInMs * buffer.sampleRate) / 1000));
+}
+
+export function applyFadeInSamples(buffer: AudioBuffer, fadeTimeInSamples: number) {
+    let startTime = performance.now();
+
+    const fadeInSamples = Math.min(buffer.length, fadeTimeInSamples);
+
     for (var ch = 0; ch < buffer.numberOfChannels; ++ch) {
         let data = buffer.getChannelData(ch);
         for (var i = 0; i < fadeInSamples; ++i) {
             data[i] *= Math.sin(((i / fadeInSamples) * Math.PI) / 2) ** 2;
         }
     }
+    console.log(`Fade-in took ${(performance.now() - startTime).toFixed(1)} ms`);
 }
+export function applyFadeOutSamples(buffer: AudioBuffer, fadeTimeInSamples: number) {
+    let startTime = performance.now();
 
-export function applyFadeOut(buffer: AudioBuffer, fadeTimeInMs: number) {
-    const fadeOutSamples = Math.min(buffer.length, (fadeTimeInMs * buffer.sampleRate) / 1000);
+    const fadeOutSamples = Math.min(buffer.length, fadeTimeInSamples);
     let lastSample = buffer.length - 1;
     for (var ch = 0; ch < buffer.numberOfChannels; ++ch) {
         let data = buffer.getChannelData(ch);
@@ -104,4 +141,6 @@ export function applyFadeOut(buffer: AudioBuffer, fadeTimeInMs: number) {
             data[lastSample - i] *= Math.sin(((i / fadeOutSamples) * Math.PI) / 2) ** 2;
         }
     }
+
+    console.log(`Fade-out took ${(performance.now() - startTime).toFixed(1)} ms`);
 }
