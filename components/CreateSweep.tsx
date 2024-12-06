@@ -1,20 +1,16 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Sweep, SweepSettings } from "@/lib/sweep";
 import { downloadBuffer } from "@/lib/utilities";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Download } from "lucide-react";
+import { useSweepCodeContext } from "@/lib/context/SweepCodeContext";
+import Info from "./Info";
 
 export default function CreateSweep() {
     const [sampleRate, setSampleRate] = useState<string>("48000");
@@ -26,14 +22,16 @@ export default function CreateSweep() {
         lengthInSeconds: duration,
         startFrequency,
     };
-    const code = Sweep.getCode(settings);
+    const { sweepCode, setSweepCode } = useSweepCodeContext();
+
+    useEffect(() => {
+        setSweepCode(Sweep.getCode(settings));
+    }, [settings]);
 
     return (
-        <Card className="mx-auto w-full max-w-md">
+        <Card className="w-full max-w-md">
             <CardHeader>
-                <CardTitle className="text-center text-2xl font-bold">
-                    Create Sweep
-                </CardTitle>
+                <CardTitle className="text-center text-2xl font-bold">Create Sweep</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="space-y-2">
@@ -78,13 +76,14 @@ export default function CreateSweep() {
                     <p className="text-right text-sm">{startFrequency} Hz</p>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                     <Button onClick={() => createSweepAndDownload(settings)}>
                         <Download /> Download
                     </Button>
 
-                    <div className="font-mono text-xs text-muted-foreground">
-                        {code}
+                    <div className="flex flex-row items-center gap-1">
+                        <div className="text-right font-mono text-xs text-muted-foreground">{sweepCode}</div>
+                        <Info content="The Sweep Code is used later to generate the inverse sweep used in the deconvolution." />
                     </div>
                 </div>
             </CardContent>
