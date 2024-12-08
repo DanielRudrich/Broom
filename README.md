@@ -1,36 +1,25 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+![Logo](images/logo.svg#gh-dark-mode-only)
+![Logo](images/logo_light.svg#gh-light-mode-only)
 
-First, run the development server:
+**Room impulse response measurement - made easy!**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Check it out on [broom.danielrudrich.de](https://broom.danielrudrich.de).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## About
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Broom** let's you easily create and download a sine sweep signal for room impulse response measurements. Once measured, it let's you deconvolve your recorded sweep response to obtain the room impulse response. It also provides tools to visualize and edit the impulse response, e.g. trimming and applying fade-in and fade-out. All in the browser, no installation required.
 
-## Learn More
+## Motivation
 
-To learn more about Next.js, take a look at the following resources:
+Measuring sweep responses is a common method to obtain room impulse responses. However, creating the sweep signal and deconvolving the recorded response usually requires some knowledge in signal processing and at least familiarity with software like MATLAB or Python. That's why I created Broom - to make this process as easy as possible for everyone.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Privacy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Broom works completely in your browser. No data is sent to any server.
 
-## Deploy on Vercel
+## Planned Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] implementing an audio decoding library to support larger number of channels (currently browser dependent)
+- [ ] playback of the impulse response in a convolution node with some sample signals
