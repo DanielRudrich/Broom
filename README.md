@@ -1,34 +1,25 @@
 
-![Logo](logo.svg#gh-dark-mode-only)
-![Logo](logo_light.svg#gh-light-mode-only)
+![Logo](images/logo.svg#gh-dark-mode-only)
+![Logo](images/logo_light.svg#gh-light-mode-only)
 
-Room impulse response measurement - in the browser!
+**Room impulse response measurement - made easy!**
 
-
-
-Check it out on [danielrudrich.github.io/Broom](https://danielrudrich.github.io/Broom/).
+Check it out on [broom.danielrudrich.de](https://broom.danielrudrich.de).
 
 
-## Behind the scenes
-**Broom** uses the WebAudioAPI to play out a sine sweep and record the room response with the microphone input.
-Playback and recording is handled by a custom `AudioWorkletProcessor`, so that both are in sync.
+## About
 
-The captured *sweep response* will then be deconvolved using a weighted inverse sweep to yield the impulse response of the room. This happens in an `OfflineAudioContext`. The result will be displayed and encoded into the Wav format for the user to download.
+**Broom** let's you easily create and download a sine sweep signal for room impulse response measurements. Once measured, it let's you deconvolve your recorded sweep response to obtain the room impulse response. It also provides tools to visualize and edit the impulse response, e.g. trimming and applying fade-in and fade-out. All in the browser, no installation required.
 
-## Run it locally
-In case you want to check out the project and run it locally:
+## Motivation
 
-```sh
-npm install
-npm run build  # or `npm run watch` for an auto-recompilation if a file changes
-```
-You will need to start a webserver serving the `dist/` folder e.g. with live-share, http-server, ...
+Measuring sweep responses is a common method to obtain room impulse responses. However, creating the sweep signal and deconvolving the recorded response usually requires some knowledge in signal processing and at least familiarity with software like MATLAB or Python. That's why I created Broom - to make this process as easy as possible for everyone.
 
+## Privacy
+
+Broom works completely in your browser. No data is sent to any server.
 
 ## Planned Features
-- Multi-channel capturing (afaik, browsers should be able to handle up to three input channels)
 
-## Known Issues
-- Seems that some browser still apply some auto-gain, first measurement could be affected by that.
-- Not compatible with older browsers (needs [`AudioWorklet`](https://caniuse.com/?search=audioworklet), and no feedback to the user if unsupported
-- Samplerate handling problematic on Firefox, as it doesn't support `sampleRate` constraint
+- [ ] implementing an audio decoding library to support larger number of channels (currently browser dependent)
+- [ ] playback of the impulse response in a convolution node with some sample signals
