@@ -10,8 +10,10 @@ import ImpulseResponseEditor from "@/components/ImpulseResponseEditor";
 export default function Home() {
     return (
         <main className="flex min-h-screen flex-col items-center gap-8 bg-gray-800 p-8">
-            <Image src={logo} alt="Broom logo" width={320} />
-            <div className="font-mono">Sweep the room!</div>
+            <div className="flex flex-col items-end">
+                <Image src={logo} alt="Broom logo" width={320} />
+                <div className="font-mono tracking-tighter">Sweep the room!</div>
+            </div>
             <SweepCodeProvider>
                 <ImpulseResponseProvider>
                     <div className="flex w-full flex-col gap-4">

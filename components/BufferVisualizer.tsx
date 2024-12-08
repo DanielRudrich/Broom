@@ -435,42 +435,58 @@ export default function BufferVisualizer({ original }: { original: AudioBuffer }
     return (
         <div className="flex flex-col items-center gap-4">
             <div className="flex flex-row items-center gap-2">
-                <Button
-                    onClick={() => {
-                        setBuffer(copyBuffer(original));
-                        setZoomRange([0, original.length]);
-                    }}
-                >
-                    <RotateCcw /> Restore Original
-                </Button>
                 <AudioBufferInfo buffer={buffer} />
                 <Button
                     onClick={() => {
                         if (buffer) {
-                            downloadBuffer(buffer, "ir.wav");
+                            downloadBuffer(buffer, "broom-ir.wav");
                         }
                     }}
+                    size={"sm"}
                 >
-                    <Download /> Download Processed
+                    <Download /> Download
                 </Button>
             </div>
 
-            <div className="flex flex-row gap-1">
-                <ToggleGroup
-                    value={tool}
-                    onValueChange={(value) => setTool(getToolFromString(value))}
-                    type="single"
-                >
-                    {tools.map((toolObj) => (
-                        <ToggleGroupItem key={toolObj.tool} value={toolObj.tool}>
-                            {toolObj.icon}
-                            <div>{toolObj.name}</div>
-                        </ToggleGroupItem>
-                    ))}
-                </ToggleGroup>
-                <div className="flex items-center space-x-2">
-                    <Switch id="decibels" onCheckedChange={setShowDecibels} />
-                    <Label htmlFor="decibels">Decibels</Label>
+            <div className="flex flex-col-reverse items-center gap-3 lg:flex-row">
+                <div className="h-7 items-center gap-1.5 rounded-md border p-[3px]">
+                    <ToggleGroup
+                        value={tool}
+                        onValueChange={(value) => setTool(getToolFromString(value))}
+                        type="single"
+                    >
+                        {tools.map((toolObj) => (
+                            <ToggleGroupItem
+                                key={toolObj.tool}
+                                value={toolObj.tool}
+                                size={"sm"}
+                                className="h-5 rounded-sm"
+                            >
+                                {toolObj.icon}
+                                <div className="text-xs">{toolObj.name}</div>
+                            </ToggleGroupItem>
+                        ))}
+                    </ToggleGroup>
+                </div>
+                <div className="mx-2 hidden h-6 w-[1px] bg-gray-300 lg:block"></div>
+                <div className="flex flex-row gap-3">
+                    <div className="flex items-center space-x-2">
+                        <Switch id="decibels" onCheckedChange={setShowDecibels} />
+                        <Label htmlFor="decibels" className="text-xs">
+                            Decibels
+                        </Label>
+                    </div>
+                    <Button
+                        onClick={() => {
+                            setBuffer(copyBuffer(original));
+                            setZoomRange([0, original.length]);
+                        }}
+                        size={"sm"}
+                        className="h-7"
+                        variant={"secondary"}
+                    >
+                        <RotateCcw /> Restore Original
+                    </Button>
                 </div>
             </div>
 

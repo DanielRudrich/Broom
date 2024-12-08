@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -17,13 +17,12 @@ import { useImpulseResponseContext } from "@/lib/context/ImpulseResponseContext"
 import AudioBufferInfo from "./AudioBufferInfo";
 
 export default function ProcessSweepResponse() {
-    const [file, setFile] = useState<File | null>();
-
-    const { sweepCode } = useSweepCodeContext();
-    const [code, setCode] = useState<string>("");
-
     const { impulseResponse, setImpulseResponse } = useImpulseResponseContext();
+    const { sweepCode } = useSweepCodeContext();
 
+    const [file, setFile] = useState<File | null>();
+    const [code, setCode] = useState<string>("");
+    const [error, setError] = useState<string | null>(null);
     const [progress, setProgress] = useState<number | null>(null);
 
     let sweepSettings = Sweep.getSettingsFromCode(code || sweepCode);
@@ -32,6 +31,7 @@ export default function ProcessSweepResponse() {
         <Card className="w-full max-w-md">
             <CardHeader>
                 <CardTitle className="text-center text-2xl font-bold">Process Sweep Response</CardTitle>
+                <CardDescription>Transform a sweep response to an impulse response.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="space-y-2">
@@ -83,16 +83,26 @@ export default function ProcessSweepResponse() {
 
                 <div className="flex items-center justify-between">
                     <Button
-                        disabled={!file || !sweepSettings}
-                        onClick={() =>
-                            deconvolve(file, setProgress, sweepSettings).then((buffer) => {
-                                setImpulseResponse(buffer);
-                            })
-                        }
+                        disabled={!file || !sweepSettings || progress !== null}
+                        onClick={() => {
+                            setError("");
+                            setImpulseResponse(undefined);
+                            deconvolve(file, setProgress, sweepSettings)
+                                .then((buffer) => {
+                                    setImpulseResponse(buffer);
+                                })
+                                .catch((e) => {
+                                    setError("Failed to load audio file, please try a different browser.");
+                                    setProgress(null);
+                                });
+                        }}
                     >
-                        <Cog /> Process Sweep Response
+                        <Cog className={`${progress !== null && "animate-spin"}`} />
+                        {progress !== null ? "Processing..." : "Process Sweep Response"}
                     </Button>
                 </div>
+
+                {error && <div className="text-sm text-destructive">{error}</div>}
 
                 {progress !== null && <Progress className="" value={progress} />}
                 {impulseResponse && (
@@ -101,16 +111,17 @@ export default function ProcessSweepResponse() {
                             <div>Raw Impulse Response</div>
                             <Info content="The deconvolution result, normalized and with the noncausal part removed." />
                         </Label>
-                        <div className="flex w-full flex-row items-center justify-between">
+                        <div className="flex w-full flex-row items-center justify-between rounded p-1">
                             <AudioBufferInfo buffer={impulseResponse} />
                             <Button
+                                size={"sm"}
                                 onClick={() => {
                                     if (impulseResponse) {
-                                        downloadBuffer(impulseResponse, "ir.wav");
+                                        downloadBuffer(impulseResponse, "broom-ir.wav");
                                     }
                                 }}
                             >
-                                <Download /> Download Raw
+                                <Download /> Download
                             </Button>
                         </div>
                     </div>
