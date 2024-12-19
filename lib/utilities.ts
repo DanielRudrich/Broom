@@ -63,6 +63,19 @@ export function copyBuffer(buffer: AudioBuffer): AudioBuffer {
     return copy;
 }
 
+export function copyBufferStereo(buffer: AudioBuffer): AudioBuffer {
+    const copy = new AudioBuffer({
+        length: buffer.length,
+        numberOfChannels: 2,
+        sampleRate: buffer.sampleRate,
+    });
+
+    copy.copyToChannel(buffer.getChannelData(0), 0);
+    copy.copyToChannel(buffer.getChannelData(buffer.numberOfChannels > 1 ? 1 : 0), 1);
+
+    return copy;
+}
+
 export function trimBuffer(buffer: AudioBuffer, startTime: number, endTime: number): AudioBuffer {
     const sampleRate = buffer.sampleRate;
     const startSample = Math.max(0, Math.round(startTime * sampleRate));

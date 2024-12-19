@@ -22,6 +22,7 @@ import {
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
+import AudioPlayer from "./AudioPlayer";
 
 enum Tool {
     Pan = "Pan",
@@ -435,6 +436,7 @@ export default function BufferVisualizer({ original }: { original: AudioBuffer }
     return (
         <div className="flex flex-col items-center gap-4">
             <div className="flex flex-row items-center gap-2">
+                <AudioPlayer buffer={buffer} />
                 <AudioBufferInfo buffer={buffer} />
                 <Button
                     onClick={() => {
