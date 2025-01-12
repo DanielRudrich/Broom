@@ -19,6 +19,7 @@
         "fullscreen": false
       }
     ],
+    "withGlobalTauri": true,
     "security": {
       "csp": null
     }

@@ -1,4 +1,12 @@
+import { save } from "@tauri-apps/plugin-dialog";
 import { WAVFormat } from "./wavformat";
+import { writeFile } from "@tauri-apps/plugin-fs";
+
+declare global {
+    interface Window {
+        __TAURI__?: any; // for now
+    }
+}
 
 function getGlobalURL(): typeof URL {
     return window.URL || (<any>window).webkitURL;
@@ -10,7 +18,7 @@ declare var URL: {
     revokeObjectURL(url: string): void;
 };
 
-function downloadWav(wav: WAVFormat, fileName: string = "ir.wav") {
+function downloadWavBrowser(wav: WAVFormat, fileName: string = "ir.wav") {
     const blob = new window.Blob([new DataView(wav.encodedBuffer)], {
         type: "audio/wav",
     });
@@ -28,7 +36,26 @@ function downloadWav(wav: WAVFormat, fileName: string = "ir.wav") {
 }
 export function downloadBuffer(buffer: AudioBuffer, fileName: string) {
     const wav = new WAVFormat(buffer);
-    downloadWav(wav, fileName);
+
+    if (!window.__TAURI__) {
+        downloadWavBrowser(wav, fileName);
+        return;
+    }
+
+    save({
+        defaultPath: fileName,
+        filters: [
+            {
+                name: "WAV Format",
+                extensions: ["wav"],
+            },
+        ],
+    }).then((path) => {
+        if (path) {
+            const uint8Array = new Uint8Array(wav.encodedBuffer);
+            writeFile(path, uint8Array);
+        }
+    });
 }
 
 export function normalizeBuffer(buffer: AudioBuffer) {
